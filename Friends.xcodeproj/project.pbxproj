@@ -19,6 +19,8 @@
 		803174BB1891BD7D00E4DF72 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 803174B91891BD7D00E4DF72 /* InfoPlist.strings */; };
 		803174BD1891BD7D00E4DF72 /* FriendsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 803174BC1891BD7D00E4DF72 /* FriendsTests.m */; };
 		803174CB1891BEA600E4DF72 /* SWAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 803174C81891BEA600E4DF72 /* SWAppDelegate.m */; };
+		803174CE1891C08B00E4DF72 /* SWListFriendsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 803174CD1891C08B00E4DF72 /* SWListFriendsViewController.m */; };
+		803174D21891CC3800E4DF72 /* SWFacebookUserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 803174D11891CC3800E4DF72 /* SWFacebookUserModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +50,10 @@
 		803174BC1891BD7D00E4DF72 /* FriendsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FriendsTests.m; sourceTree = "<group>"; };
 		803174C71891BEA600E4DF72 /* SWAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWAppDelegate.h; sourceTree = "<group>"; };
 		803174C81891BEA600E4DF72 /* SWAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWAppDelegate.m; sourceTree = "<group>"; };
+		803174CC1891C08B00E4DF72 /* SWListFriendsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWListFriendsViewController.h; sourceTree = "<group>"; };
+		803174CD1891C08B00E4DF72 /* SWListFriendsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWListFriendsViewController.m; sourceTree = "<group>"; };
+		803174D01891CC3800E4DF72 /* SWFacebookUserModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWFacebookUserModel.h; sourceTree = "<group>"; };
+		803174D11891CC3800E4DF72 /* SWFacebookUserModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWFacebookUserModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +113,7 @@
 		8031749D1891BD7D00E4DF72 /* Friends */ = {
 			isa = PBXGroup;
 			children = (
+				803174CF1891CBFE00E4DF72 /* Models */,
 				803174C61891BEA600E4DF72 /* App Delegate */,
 				803174C91891BEA600E4DF72 /* View Controllers */,
 				803174CA1891BEA600E4DF72 /* Views */,
@@ -157,6 +164,8 @@
 		803174C91891BEA600E4DF72 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				803174CC1891C08B00E4DF72 /* SWListFriendsViewController.h */,
+				803174CD1891C08B00E4DF72 /* SWListFriendsViewController.m */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -166,6 +175,15 @@
 			children = (
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		803174CF1891CBFE00E4DF72 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				803174D01891CC3800E4DF72 /* SWFacebookUserModel.h */,
+				803174D11891CC3800E4DF72 /* SWFacebookUserModel.m */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -264,6 +282,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				803174D21891CC3800E4DF72 /* SWFacebookUserModel.m in Sources */,
+				803174CE1891C08B00E4DF72 /* SWListFriendsViewController.m in Sources */,
 				803174CB1891BEA600E4DF72 /* SWAppDelegate.m in Sources */,
 				803174A41891BD7D00E4DF72 /* main.m in Sources */,
 			);
