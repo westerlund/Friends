@@ -26,7 +26,7 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
         
         [self setTableView:[UITableView new]];
         [self.tableView setDataSource:self];
-        [self.tableView registerClass:[UITableView class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
+        [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
     }
     return self;
 }
