@@ -7,6 +7,7 @@
 //
 
 #import "SWAppDelegate.h"
+#import "SWListFriendsViewController.h"
 
 @implementation SWAppDelegate
 
@@ -14,7 +15,8 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
+    [self.window setBackgroundColor:[UIColor whiteColor]];
+    [self.window setRootViewController:[SWListFriendsViewController new]];
     [self.window makeKeyAndVisible];
     return YES;
 }
