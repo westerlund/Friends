@@ -6,9 +6,18 @@
 //  Copyright (c) 2014 Simon Westerlund. All rights reserved.
 //
 
-static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsTableViewCellIdentifier";
-
 #import "SWListFriendsViewController.h"
+#import "SWFriendsController.h"
+#import "SWFacebookUserModel.h"
+
+@interface SWListFriendsViewController ()
+
+@property (nonatomic, strong) NSArray *friendsArray;
+@property (nonatomic, strong) NSArray *sectionTitles;
+
+@end
+
+static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsTableViewCellIdentifier";
 
 @interface SWListFriendsViewController () <UITableViewDataSource>
 
@@ -27,14 +36,30 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
         [self setTableView:[UITableView new]];
         [self.tableView setDataSource:self];
         [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
+        
+        [self setSectionTitles:[[UILocalizedIndexedCollation currentCollation] sectionTitles]];
     }
     return self;
+}
+
+- (void)loadView {
+    [super loadView];
+    
+    [self.tableView setFrame:[self.view bounds]];
+    [self.view addSubview:[self tableView]];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    SWFriendsController *controller = [SWFriendsController new];
+    NSError *error = nil;
+    [controller fetchFriendsListWithCompletionBlock:^(id operation, NSArray *friendsArray, NSError *error) {
+        [self setFriendsArray:friendsArray];
+        [self.tableView reloadData];
+    } error:&error];
 }
 
 - (void)didReceiveMemoryWarning
@@ -56,15 +81,45 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
 
 #pragma mark - UITableViewDataSource
 
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return [self.sectionTitles count];
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 0;
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstName BEGINSWITH[cd] %@", [self.sectionTitles objectAtIndex:section]];
+    NSArray *aElements = [self.friendsArray filteredArrayUsingPredicate:predicate];
+    return [aElements count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kSWListFriendsTableViewCellIdentifier
                                                             forIndexPath:indexPath];
     
+    if (self.friendsArray) {
+        
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstName BEGINSWITH[cd] %@", [self.sectionTitles objectAtIndex:[indexPath section]]];
+        NSArray *aElements = [self.friendsArray filteredArrayUsingPredicate:predicate];
+        
+        SWFacebookUserModel *user = [aElements objectAtIndex:[indexPath row]];
+        [cell.textLabel setText:[NSString stringWithFormat:@"%@ %@", [user firstName], [user lastName]]];
+    }
     return cell;
+}
+
+//- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
+//    return[NSArray arrayWithObjects:@"A", @"●", @"C", @"●", @"E", @"●", @"G", @"●", @"I", @"●", @"K", @"●", @"M", @"●", @"O", @"●", @"Q", @"●", @"S", @"●", @"U", @"●", @"W", @"●", @"Y", @"●", @"Å", @"●", @"Ö", nil];
+//}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    return [self.sectionTitles objectAtIndex:section];
+}
+
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
+    return [[UILocalizedIndexedCollation currentCollation] sectionIndexTitles];
+}
+
+- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
+    return [[UILocalizedIndexedCollation currentCollation] sectionForSectionIndexTitleAtIndex:index];
 }
 
 @end
