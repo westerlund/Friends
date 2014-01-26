@@ -112,10 +112,11 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
     SWFriendsController *controller = [SWFriendsController new];
     NSError *error = nil;
     [controller fetchFriendsListWithCompletionBlock:^(id operation, NSArray *friendsArray, NSError *error) {
+        
         [self setAllFriendsArray:friendsArray];
+        [self splitToSubarraysFromArray:friendsArray];
         [self.tableView reloadData];
         
-        [self chunkedFriendsArray];
     } error:&error];
 }
 
