@@ -10,6 +10,7 @@
 #import "SWFriendsController.h"
 #import "SWFacebookUserModel.h"
 #import "SWUserTableViewCell.h"
+#import <AddressBook/AddressBook.h>
 
 @interface SWListFriendsViewController () {
     NSArray *_chunkedFriendsArray;
@@ -86,32 +87,37 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
 }
 */
 
-- (NSArray *)chunkedFriendsArray {
-    if (_chunkedFriendsArray == nil && [self allFriendsArray]) {
+- (void)splitToSubarraysFromArray:(NSArray *)array {
+    
+    NSMutableArray *mutableDictionary = [NSMutableArray new];
+    NSMutableIndexSet *keysToDeleteArray = [NSMutableIndexSet new];
+    
+    [self setSectionTitles:[[UILocalizedIndexedCollation currentCollation] sectionTitles]];
+    [self.sectionTitles enumerateObjectsUsingBlock:^(NSString *letter, NSUInteger idx, BOOL *stop) {
         
-        NSMutableArray *mutableDictionary = [NSMutableArray new];
-        NSMutableIndexSet *keysToDeleteArray = [NSMutableIndexSet new];
+        NSPredicate *predicate = nil;
+        if (ABPersonGetSortOrdering() == kABPersonSortByFirstName) {
+            predicate = [NSPredicate predicateWithFormat:@"firstName BEGINSWITH[cd] %@", letter];
+        } else {
+            predicate = [NSPredicate predicateWithFormat:@"lastName BEGINSWITH[cd] %@", letter];
+        }
         
-        [self.sectionTitles enumerateObjectsUsingBlock:^(NSString *letter, NSUInteger idx, BOOL *stop) {
-            
-            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstName BEGINSWITH[cd] %@", letter];
-            NSArray *chunkedArray = [self.allFriendsArray filteredArrayUsingPredicate:predicate];
-            
-            if ([chunkedArray count] > 0) {
-//                [mutableDictionary setObject:chunkedArray forKey:letter];
-                [mutableDictionary addObject:chunkedArray];
-            } else {
-                [keysToDeleteArray addIndex:idx];
-            }
-            
-        }];
+        NSArray *chunkedArray = [array filteredArrayUsingPredicate:predicate];
         
-//        [mutableDictionary removeObjectsAtIndexes:keysToDeleteArray];
+        if ([chunkedArray count] > 0) {
+            [mutableDictionary addObject:chunkedArray];
+        } else {
+            [keysToDeleteArray addIndex:idx];
+        }
         
-        [self setChunkedFriendsArray:[mutableDictionary copy]];
-        
-    }
-    return _chunkedFriendsArray;
+    }];
+    
+    NSMutableArray *mutableSectionTitles = [[self sectionTitles] mutableCopy];
+    [mutableSectionTitles removeObjectsAtIndexes:keysToDeleteArray];
+    [self setSectionTitles:[mutableSectionTitles copy]];
+    
+    [self setChunkedFriendsArray:[mutableDictionary copy]];
+    
 }
 
 - (void)setChunkedFriendsArray:(NSArray *)chunkedFriendsArray {
