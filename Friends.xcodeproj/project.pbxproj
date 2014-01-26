@@ -26,6 +26,7 @@
 		8031751E18929B6E00E4DF72 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8031751D18929B6E00E4DF72 /* Social.framework */; };
 		8031752018929B7A00E4DF72 /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8031751F18929B7A00E4DF72 /* Accounts.framework */; };
 		80B2F0B71892DA990010F31F /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80B2F0B61892DA990010F31F /* AddressBook.framework */; };
+		80B2F0BA189540070010F31F /* SWUserTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 80B2F0B9189540070010F31F /* SWUserTableViewCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,8 @@
 		8031751D18929B6E00E4DF72 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		8031751F18929B7A00E4DF72 /* Accounts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accounts.framework; path = System/Library/Frameworks/Accounts.framework; sourceTree = SDKROOT; };
 		80B2F0B61892DA990010F31F /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
+		80B2F0B8189540070010F31F /* SWUserTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWUserTableViewCell.h; sourceTree = "<group>"; };
+		80B2F0B9189540070010F31F /* SWUserTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWUserTableViewCell.m; sourceTree = "<group>"; };
 		8F9642A5CAAB49179F636875 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -195,6 +198,8 @@
 		803174CA1891BEA600E4DF72 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				80B2F0B8189540070010F31F /* SWUserTableViewCell.h */,
+				80B2F0B9189540070010F31F /* SWUserTableViewCell.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -348,6 +353,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				80B2F0BA189540070010F31F /* SWUserTableViewCell.m in Sources */,
 				8031751C189299CC00E4DF72 /* SWFriendsController.m in Sources */,
 				803174D21891CC3800E4DF72 /* SWFacebookUserModel.m in Sources */,
 				803174CE1891C08B00E4DF72 /* SWListFriendsViewController.m in Sources */,
