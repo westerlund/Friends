@@ -9,6 +9,7 @@
 #import "SWListFriendsViewController.h"
 #import "SWFriendsController.h"
 #import "SWFacebookUserModel.h"
+#import "SWUserTableViewCell.h"
 
 @interface SWListFriendsViewController () {
     NSArray *_chunkedFriendsArray;
@@ -39,7 +40,7 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
         
         [self setTableView:[UITableView new]];
         [self.tableView setDataSource:self];
-        [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
+        [self.tableView registerClass:[SWUserTableViewCell class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
         
         [self setSectionTitles:[[UILocalizedIndexedCollation currentCollation] sectionTitles]];
     }
@@ -146,11 +147,10 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kSWListFriendsTableViewCellIdentifier
+    SWUserTableViewCell *cell = (SWUserTableViewCell *)[tableView dequeueReusableCellWithIdentifier:kSWListFriendsTableViewCellIdentifier
                                                             forIndexPath:indexPath];
     
-    SWFacebookUserModel *user = [self userAtIndexPath:indexPath];
-    [cell.textLabel setAttributedText:[user name]];
+    [cell setUser:[self userAtIndexPath:indexPath]];
     
     return cell;
 }
