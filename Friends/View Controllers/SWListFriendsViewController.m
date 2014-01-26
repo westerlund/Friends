@@ -20,12 +20,13 @@
 @property (nonatomic, strong) NSArray *sortedTitles;
 @property (nonatomic, strong) NSArray *allFriendsArray;
 @property (nonatomic, strong) NSArray *sectionTitles;
+@property (nonatomic, strong) UITextField *searchTextField;
 
 @end
 
 static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsTableViewCellIdentifier";
 
-@interface SWListFriendsViewController () <UITableViewDataSource>
+@interface SWListFriendsViewController () <UITableViewDataSource, UITextFieldDelegate>
 
 @property (nonatomic, strong) UITableView *tableView;
 
@@ -44,6 +45,12 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
         [self.tableView registerClass:[SWUserTableViewCell class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
         
         [self setSectionTitles:[[UILocalizedIndexedCollation currentCollation] sectionTitles]];
+        
+        [self setSearchTextField:[UITextField new]];
+        [self.searchTextField setDelegate:self];
+        [self.searchTextField setPlaceholder:@"Search"];
+        [self.searchTextField setReturnKeyType:UIReturnKeyDone];
+
     }
     return self;
 }
@@ -52,7 +59,14 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
     [super loadView];
     
     [self.tableView setFrame:[self.view bounds]];
+    [self.tableView setContentInset:UIEdgeInsetsMake(44, 0, 0, 0)];
     [self.view addSubview:[self tableView]];
+    
+    [self.searchTextField setFrame:CGRectMake(0, 44+20, 320, 44)];
+    [self.searchTextField addTarget:self action:@selector(textFieldEditingChanged:) forControlEvents:UIControlEventEditingChanged];
+    [self.view addSubview:[self searchTextField]];
+}
+
 }
 
 - (void)viewDidLoad
