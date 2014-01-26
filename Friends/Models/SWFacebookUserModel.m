@@ -19,6 +19,7 @@ static NSString *const kFacebookAPIPictureUrl = @"last_name";
 @property (nonatomic, strong, readwrite) NSString *lastName;
 @property (nonatomic, strong, readwrite) NSURL *pictureUrl;
 @property (nonatomic, getter = isDisplayFormatFirstNameFirst) BOOL displayFormatFirstNameFirst;
+@property (nonatomic) float systemFontSize;
 
 @end
 
@@ -27,6 +28,8 @@ static NSString *const kFacebookAPIPictureUrl = @"last_name";
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary error:(NSError *__autoreleasing *)error {
     self = [super init];
     if (self) {
+        
+        [self setSystemFontSize:[[UIFont preferredFontForTextStyle:UIFontTextStyleBody] pointSize]];
         
         ABAddressBookCreateWithOptions(NULL, NULL);
         [self setDisplayFormatFirstNameFirst:ABPersonGetCompositeNameFormatForRecord(NULL) == kABPersonCompositeNameFormatFirstNameFirst];
@@ -47,6 +50,32 @@ static NSString *const kFacebookAPIPictureUrl = @"last_name";
         }
     }
     return self;
+}
+
+- (NSAttributedString *)name {
+    
+    NSString *attributedName = nil;
+    NSRange range;
+    
+    if ([self isDisplayFormatFirstNameFirst]) {
+        attributedName = [NSString stringWithFormat:@"%@ %@", self.firstName, self.lastName];
+        range = NSMakeRange([self.firstName length],[attributedName length]-[self.firstName length]);
+    } else {
+        attributedName = [NSString stringWithFormat:@"%@ %@", self.lastName, self.firstName];
+        range = NSMakeRange(0,[self.lastName length]);
+    }
+    
+    UIFont *boldFont = [UIFont boldSystemFontOfSize:[self systemFontSize]];
+    UIFont *regularFont = [UIFont systemFontOfSize:[self systemFontSize]];
+    
+    NSDictionary *boldFontAttributes = [NSDictionary dictionaryWithObjectsAndKeys:boldFont, NSFontAttributeName, nil];
+    NSDictionary *normalFontAttributes = [NSDictionary dictionaryWithObjectsAndKeys:regularFont, NSFontAttributeName, nil];
+
+    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:attributedName
+                                                                                       attributes:normalFontAttributes];
+    [attributedText setAttributes:boldFontAttributes range:range];
+    
+    return attributedText;
 }
 
 @end
