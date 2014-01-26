@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+@class SWFacebookUserModel;
 
 @interface SWUserTableViewCell : UITableViewCell
+
+@property (nonatomic, strong) SWFacebookUserModel *user;
 
 @end
