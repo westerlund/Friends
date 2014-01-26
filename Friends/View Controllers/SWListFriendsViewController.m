@@ -67,6 +67,10 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
     [self.view addSubview:[self searchTextField]];
 }
 
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
+    return YES;
 }
 
 - (void)viewDidLoad
