@@ -78,4 +78,8 @@ static NSString *const kFacebookAPIPictureUrl = @"last_name";
     return attributedText;
 }
 
+- (NSString *)fullName {
+    return [[self name] string];
+}
+
 @end

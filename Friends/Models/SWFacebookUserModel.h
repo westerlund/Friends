@@ -17,5 +17,6 @@
 @property (nonatomic, readonly) NSURL *pictureUrl;
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary error:(NSError **)error;
+- (NSString *)fullName;
 
 @end
