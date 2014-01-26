@@ -46,6 +46,8 @@
         return;
     }
     
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+    
     if ([self accountCredential] == nil) {
         NSError *error = nil;
         
@@ -59,6 +61,7 @@
                 [strongSelf setAccountCredential:crendentials];
                 
                 [self fetchListWithCompletionBlock:^(id operation,NSArray *array) {
+                    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
                     block(operation, array, nil);
                 }];
             }
