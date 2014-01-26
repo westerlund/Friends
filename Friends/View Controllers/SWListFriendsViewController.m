@@ -139,8 +139,8 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
 
 - (void)splitToSubarraysFromArray:(NSArray *)array {
     
-    NSMutableArray *mutableDictionary = [NSMutableArray new];
-    NSMutableIndexSet *keysToDeleteArray = [NSMutableIndexSet new];
+    NSMutableArray *mutableArray = [NSMutableArray new];
+    NSMutableIndexSet *removeObjectsIndexes = [NSMutableIndexSet new];
     
     [self setSectionTitles:[[UILocalizedIndexedCollation currentCollation] sectionTitles]];
     [self.sectionTitles enumerateObjectsUsingBlock:^(NSString *letter, NSUInteger idx, BOOL *stop) {
@@ -155,18 +155,18 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
         NSArray *chunkedArray = [array filteredArrayUsingPredicate:predicate];
         
         if ([chunkedArray count] > 0) {
-            [mutableDictionary addObject:chunkedArray];
+            [mutableArray addObject:chunkedArray];
         } else {
-            [keysToDeleteArray addIndex:idx];
+            [removeObjectsIndexes addIndex:idx];
         }
         
     }];
     
     NSMutableArray *mutableSectionTitles = [[self sectionTitles] mutableCopy];
-    [mutableSectionTitles removeObjectsAtIndexes:keysToDeleteArray];
+    [mutableSectionTitles removeObjectsAtIndexes:removeObjectsIndexes];
     [self setSectionTitles:[mutableSectionTitles copy]];
     
-    [self setChunkedFriendsArray:[mutableDictionary copy]];
+    [self setChunkedFriendsArray:[mutableArray copy]];
     
 }
 
@@ -174,7 +174,7 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
     if (_chunkedFriendsArray != chunkedFriendsArray) {
         _chunkedFriendsArray = chunkedFriendsArray;
         
-        [self setSortedTitles:self.chunkedFriendsArray];
+        [self setSortedTitles:[self chunkedFriendsArray]];
     }
 }
 
