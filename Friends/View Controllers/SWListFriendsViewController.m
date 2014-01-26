@@ -67,6 +67,37 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
     [self.view addSubview:[self searchTextField]];
 }
 
+- (void)textFieldEditingChanged:(UITextField *)textField {
+    NSArray *searchResults = nil;
+    
+    // If we typed something, search for it, otherwise restore list
+    if ([textField.text length] > 0) {
+        
+        NSPredicate *searchPredicate = nil;
+        
+        NSRange rangeOfSpace = [[textField text] rangeOfString:@" "];
+        if (rangeOfSpace.location != NSNotFound) {
+            NSString *firstHalf = [[textField text] substringToIndex:rangeOfSpace.location];
+            NSString *secondHalf = [[textField text] substringFromIndex:rangeOfSpace.location + 1]; // +1 to exclude the space
+            
+            // If we hit space, we obviously want to separate first and last name
+            // However, only search if we typed something, otherwise search for just first name
+            if ([firstHalf length] > 0 && [secondHalf length] > 0) {
+                searchPredicate = [NSPredicate predicateWithFormat:@"(firstName CONTAINS[cd] %@) AND (lastName CONTAINS[cd] %@)", firstHalf, secondHalf];
+            } else {
+                searchPredicate = [NSPredicate predicateWithFormat:@"fullName CONTAINS[cd] %@", firstHalf];
+            }
+        } else {
+            searchPredicate = [NSPredicate predicateWithFormat:@"fullName CONTAINS[cd] %@", [textField text]];
+        }
+        searchResults = [[self allFriendsArray] filteredArrayUsingPredicate:searchPredicate];
+    } else {
+        searchResults = [self allFriendsArray];
+    }
+
+    [self splitToSubarraysFromArray:searchResults];
+    [self.tableView reloadData];
+}
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [textField resignFirstResponder];
