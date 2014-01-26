@@ -7,6 +7,7 @@
 //
 
 #import "SWFacebookUserModel.h"
+#import <AddressBook/AddressBook.h>
 
 static NSString *const kFacebookAPIFirstName = @"first_name";
 static NSString *const kFacebookAPILastName = @"last_name";
