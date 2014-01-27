@@ -22,15 +22,7 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
 @property (nonatomic, strong) NSArray *sortedTitles;
 @property (nonatomic, strong) NSArray *allFriendsArray;
 @property (nonatomic, strong) NSArray *sectionTitles;
-@property (nonatomic, strong) UITextField *searchTextField;
 
-@end
-
-static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsTableViewCellIdentifier";
-
-@interface SWListFriendsViewController () <UITableViewDataSource, UITextFieldDelegate>
-
-@property (nonatomic, strong) UITableView *tableView;
 
 @end
 
@@ -45,66 +37,40 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
         [self setTableView:[UITableView new]];
         [self.tableView setDataSource:self];
         [self.tableView registerClass:[SWUserTableViewCell class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
+        [self.tableView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
         
         [self setSectionTitles:[[UILocalizedIndexedCollation currentCollation] sectionTitles]];
         
-        [self setSearchTextField:[UITextField new]];
-        [self.searchTextField setDelegate:self];
-        [self.searchTextField setPlaceholder:@"Search"];
-        [self.searchTextField setReturnKeyType:UIReturnKeyDone];
+        UISearchBar *searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+        [self setFriendsSearchDisplayController:[[UISearchDisplayController alloc] initWithSearchBar:searchBar
+                                                                           contentsController:self]];
+        [self.friendsSearchDisplayController setDelegate:self];
+        [self.friendsSearchDisplayController setSearchResultsDataSource:self];
+        [self.friendsSearchDisplayController.searchResultsTableView registerClass:[SWUserTableViewCell class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
+        
+        [self.tableView setTableHeaderView:searchBar];
+        
+        [self setTitle:@"Facebook Friends"];
 
     }
     return self;
 }
 
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UIViewDelegate
+
 - (void)loadView {
     [super loadView];
     
     [self.tableView setFrame:[self.view bounds]];
-    [self.tableView setContentInset:UIEdgeInsetsMake(44, 0, 0, 0)];
     [self.view addSubview:[self tableView]];
-    
-    [self.searchTextField setFrame:CGRectMake(0, 44+20, 320, 44)];
-    [self.searchTextField addTarget:self action:@selector(textFieldEditingChanged:) forControlEvents:UIControlEventEditingChanged];
-    [self.view addSubview:[self searchTextField]];
 }
 
-- (void)textFieldEditingChanged:(UITextField *)textField {
-    NSArray *searchResults = nil;
-    
-    // If we typed something, search for it, otherwise restore list
-    if ([textField.text length] > 0) {
-        
-        NSPredicate *searchPredicate = nil;
-        
-        NSRange rangeOfSpace = [[textField text] rangeOfString:@" "];
-        if (rangeOfSpace.location != NSNotFound) {
-            NSString *firstHalf = [[textField text] substringToIndex:rangeOfSpace.location];
-            NSString *secondHalf = [[textField text] substringFromIndex:rangeOfSpace.location + 1]; // +1 to exclude the space
-            
-            // If we hit space, we obviously want to separate first and last name
-            // However, only search if we typed something, otherwise search for just first name
-            if ([firstHalf length] > 0 && [secondHalf length] > 0) {
-                searchPredicate = [NSPredicate predicateWithFormat:@"(firstName CONTAINS[cd] %@) AND (lastName CONTAINS[cd] %@)", firstHalf, secondHalf];
-            } else {
-                searchPredicate = [NSPredicate predicateWithFormat:@"fullName CONTAINS[cd] %@", firstHalf];
-            }
-        } else {
-            searchPredicate = [NSPredicate predicateWithFormat:@"fullName CONTAINS[cd] %@", [textField text]];
-        }
-        searchResults = [[self allFriendsArray] filteredArrayUsingPredicate:searchPredicate];
-    } else {
-        searchResults = [self allFriendsArray];
-    }
-
-    [self splitToSubarraysFromArray:searchResults];
-    [self.tableView reloadData];
-}
-
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    [textField resignFirstResponder];
-    return YES;
-}
 
 - (void)viewDidLoad
 {
@@ -122,22 +88,7 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
     } error:&error];
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+#pragma mark - List dividers and getters/setters
 
 - (void)splitToSubarraysFromArray:(NSArray *)array {
     
@@ -209,6 +160,7 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
                                                             forIndexPath:indexPath];
     
     [cell setUser:[self userAtIndexPath:indexPath]];
+    [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
     return cell;
 }
@@ -224,5 +176,41 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
 - (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
     return [[UILocalizedIndexedCollation currentCollation] sectionForSectionIndexTitleAtIndex:index];
 }
+
+#pragma mark - UISearchDisplayDelegate
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+{
+    NSArray *searchResults = nil;
+    
+    // If we typed something, search for it, otherwise restore list
+    if ([searchString length] > 0) {
+        
+        NSPredicate *searchPredicate = nil;
+        
+        NSRange rangeOfSpace = [searchString rangeOfString:@" "];
+        if (rangeOfSpace.location != NSNotFound) {
+            NSString *firstHalf = [searchString substringToIndex:rangeOfSpace.location];
+            NSString *secondHalf = [searchString substringFromIndex:rangeOfSpace.location + 1]; // +1 to exclude the space
+            
+            // If we hit space, we obviously want to separate first and last name
+            // However, only search if we typed something, otherwise search for just first name
+            if ([firstHalf length] > 0 && [secondHalf length] > 0) {
+                searchPredicate = [NSPredicate predicateWithFormat:@"(firstName CONTAINS[cd] %@) AND (lastName CONTAINS[cd] %@)", firstHalf, secondHalf];
+            } else {
+                searchPredicate = [NSPredicate predicateWithFormat:@"fullName CONTAINS[cd] %@", firstHalf];
+            }
+        } else {
+            searchPredicate = [NSPredicate predicateWithFormat:@"fullName CONTAINS[cd] %@", searchString];
+        }
+        searchResults = [[self allFriendsArray] filteredArrayUsingPredicate:searchPredicate];
+    } else {
+        searchResults = [self allFriendsArray];
+    }
+    
+    [self splitToSubarraysFromArray:searchResults];
+    return YES;
+}
+
 
 @end
