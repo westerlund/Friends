@@ -12,11 +12,13 @@
 #import "SWUserTableViewCell.h"
 #import <AddressBook/AddressBook.h>
 
-@interface SWListFriendsViewController () {
-    NSArray *_chunkedFriendsArray;
-}
+static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsTableViewCellIdentifier";
 
-@property (nonatomic, readonly) NSArray *chunkedFriendsArray;
+@interface SWListFriendsViewController () <UITableViewDataSource, UITextFieldDelegate, UISearchDisplayDelegate>
+
+@property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) UISearchDisplayController *friendsSearchDisplayController;
+@property (nonatomic, strong) NSArray *chunkedFriendsArray;
 @property (nonatomic, strong) NSArray *sortedTitles;
 @property (nonatomic, strong) NSArray *allFriendsArray;
 @property (nonatomic, strong) NSArray *sectionTitles;
