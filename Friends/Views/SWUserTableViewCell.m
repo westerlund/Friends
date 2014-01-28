@@ -24,12 +24,14 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         // Initialization code
+        [self.textLabel setAdjustsFontSizeToFitWidth:YES];
+        [self setSeparatorInset:UIEdgeInsetsMake(0, 8, 0, 0)];
         
         [self setProfilePictureImageView:[UIImageView new]];
         [self.contentView addSubview:[self profilePictureImageView]];
         
         [self.profilePictureImageView setContentMode:UIViewContentModeScaleAspectFill];
-        [self.profilePictureImageView setFrame:CGRectMake(6, (44-30)/2, 30, 30)];
+        [self.profilePictureImageView setFrame:CGRectMake(8, (44-28)/2, 28, 28)];
         [self.profilePictureImageView setClipsToBounds:YES];
         [self.profilePictureImageView setBackgroundColor:[UIColor colorWithWhite:0.9 alpha:1]];
         [self.profilePictureImageView.layer setCornerRadius:CGRectGetHeight([self.profilePictureImageView frame]) / 2];
@@ -41,30 +43,7 @@
 - (void)setUser:(SWFacebookUserModel *)user {
     _user = user;
     [self.textLabel setAttributedText:[user name]];
-    
-//    if ([self borderLayer] == nil) {
-//        [self setBorderLayer:[CAShapeLayer layer]];
-//    }
 
-    
-    
-        
-//        [self.borderLayer setFrame:[self.profilePictureImageView frame]];
-//        [self.borderLayer setPath:[shapeLayer path]];
-//        [self.borderLayer setFillColor:[UIColor clearColor].CGColor];
-//        [self.borderLayer setStrokeColor:[UIColor colorWithWhite:0.8 alpha:1].CGColor];
-//        [self.borderLayer setStrokeStart:0.0];
-//        [self.borderLayer setStrokeEnd:0.95];
-//        [self.contentView.layer addSublayer:self.borderLayer];
-    
-//        CAKeyframeAnimation *rotate = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
-//        [rotate setValues:@[(id)[NSValue valueWithCATransform3D:CATransform3DMakeRotation(M_PI * 2, 0, 0, 1)],
-//                            (id)[NSValue valueWithCATransform3D:CATransform3DMakeRotation(M_PI, 0, 0, 1)],
-//                            (id)[NSValue valueWithCATransform3D:CATransform3DMakeRotation(0, 0, 0, 1)]]];
-//        [rotate setDuration:0.8];
-//        [rotate setRepeatCount:10000];
-        //    [self.borderLayer addAnimation:rotate forKey:@"jl"];
-    
     __weak SWUserTableViewCell *weakSelf = self;
     [self.profilePictureImageView setImageWithURLRequest:[NSURLRequest requestWithURL:[user pictureUrl]]
                           placeholderImage:nil
@@ -73,42 +52,25 @@
                                        
                                        [strongSelf.profilePictureImageView setImage:image];
                                        
-                                       if ([response statusCode] != 0) {
-                                           
+                                       if ([response statusCode] != 0) { // Image wasn't cached
                                            [strongSelf.profilePictureImageView setAlpha:0];
-                                           
                                            [strongSelf.borderLayer setOpacity:0];
-                                           
                                            [UIView animateWithDuration:0.3 animations:^{
                                                [strongSelf.profilePictureImageView setAlpha:1];
                                            }];
-                                       } else {
-//                                           [strongSelf.borderLayer removeFromSuperlayer];
                                        }
-                                       
-                                   } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
-                                       
-                                   }];
-
-
-}
-
-- (void)prepareForReuse {
-    [super prepareForReuse];
-//    [self.borderLayer removeFromSuperlayer];
-//    [self.imageView cancelImageRequestOperation];
+                                   } failure:nil]; // ignore error
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    [self setSeparatorInset:UIEdgeInsetsMake(0, 8, 0, 0)];
-    
     CGRect textLabelFrame = [self.textLabel frame];
+    // make room for profile picture
     textLabelFrame.origin.x = 45;
-    textLabelFrame.size.width = CGRectGetWidth([self frame]) - 45;
+    // narrow the label, an extra 10px is for section index
+    textLabelFrame.size.width = CGRectGetWidth([self frame]) - 55;
     [self.textLabel setFrame:textLabelFrame];
-    
 }
 
 @end
