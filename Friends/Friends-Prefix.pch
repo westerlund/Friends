@@ -17,3 +17,7 @@
 
 // This key should not be in this repo, but since this project won't ship, i don't give a d**n :)
 #define kACFacebookAppIdKey @"210466079159837"
+
+// Notifications
+#define kSWFriendsAccessToFacebookGranted @"kSWFriendsAccessToFacebookGranted"
+#define kSWFriendsAccessToFacebookDenied @"kSWFriendsAccessToFacebookDenied"
