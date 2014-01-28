@@ -69,7 +69,7 @@
 - (void)loadView {
     [super loadView];
     
-    CGFloat errorLabelMargin = 30.0f;
+    CGFloat errorLabelMargin = 40.0f;
     [self.errorLabel setFrame:CGRectMake(errorLabelMargin,
                                          CGRectGetHeight([self.view frame]),
                                          CGRectGetWidth([self.view frame]) - (errorLabelMargin*2),
