@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SWNoAccessViewController : UIViewController
+@interface SWInfoViewController : UIViewController
+
+- (NSString *)infoString;
+- (NSString *)infoTipString;
 
 @end
