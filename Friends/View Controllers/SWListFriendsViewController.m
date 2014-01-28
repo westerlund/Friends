@@ -71,8 +71,7 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
                                                           object:nil
                                                            queue:nil
                                                       usingBlock:^(NSNotification *note) {
-                                                          SWNoAccessViewController *noAccessViewController = [SWNoAccessViewController new];
-                                                          [self presentViewController:noAccessViewController animated:YES completion:nil];
+                                                          [self presentNoAccessViewController];
                                                       }];
     }
     return self;
@@ -110,8 +109,12 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
 }
 
 - (void)presentNoAccessViewController {
-    SWInfoViewController *noAccessViewController = [SWInfoViewController new];
-    [self presentViewController:noAccessViewController animated:YES completion:nil];
+    double delayInSeconds = 0.3;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        SWInfoViewController *noAccessViewController = [SWNoAccessViewController new];
+        [self presentViewController:noAccessViewController animated:YES completion:nil];
+    });
 }
 
 #pragma mark - List dividers and getters/setters
