@@ -10,6 +10,8 @@
 #import "SWFriendsController.h"
 #import "SWFacebookUserModel.h"
 #import "SWUserTableViewCell.h"
+#import "SWNoAccessViewController.h"
+#import "SWNoInternetViewController.h"
 #import <AddressBook/AddressBook.h>
 
 static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsTableViewCellIdentifier";
@@ -34,24 +36,44 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
     if (self) {
         // Custom initialization
         
-        [self setTableView:[UITableView new]];
-        [self.tableView setDataSource:self];
-        [self.tableView registerClass:[SWUserTableViewCell class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
-        [self.tableView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
-        
         [self setSectionTitles:[[UILocalizedIndexedCollation currentCollation] sectionTitles]];
         
-        UISearchBar *searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+        UISearchBar *searchBar = [[UISearchBar alloc] initWithFrame:CGRectZero];
         [self setFriendsSearchDisplayController:[[UISearchDisplayController alloc] initWithSearchBar:searchBar
                                                                            contentsController:self]];
         [self.friendsSearchDisplayController setDelegate:self];
         [self.friendsSearchDisplayController setSearchResultsDataSource:self];
         [self.friendsSearchDisplayController.searchResultsTableView registerClass:[SWUserTableViewCell class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
         
+        [self setTableView:[UITableView new]];
+        [self.tableView setDataSource:self];
+        [self.tableView registerClass:[SWUserTableViewCell class] forCellReuseIdentifier:kSWListFriendsTableViewCellIdentifier];
+        [self.tableView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
         [self.tableView setTableHeaderView:searchBar];
+        [self.tableView setSectionIndexBackgroundColor:[UIColor clearColor]];
+        [self.tableView setSectionIndexTrackingBackgroundColor:[UIColor colorWithWhite:0.8 alpha:0.8]];
+        [self.tableView setSectionIndexMinimumDisplayRowCount:1]; // Only display section titles when rows available
         
         [self setTitle:@"Facebook Friends"];
-
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:kSWFriendsAccessToFacebookGranted
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification *note) {
+                                                          if ([self allFriendsArray] == nil) {
+                                                              [self fetchFriendsList];
+                                                          }
+                                                      }];
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:kSWFriendsAccessToFacebookDenied
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification *note) {
+                                                          SWNoAccessViewController *noAccessViewController = [SWNoAccessViewController new];
+                                                          [self presentViewController:noAccessViewController animated:YES completion:nil];
+                                                      }];
     }
     return self;
 }
@@ -71,21 +93,25 @@ static NSString *const kSWListFriendsTableViewCellIdentifier = @"kSWListFriendsT
     [self.view addSubview:[self tableView]];
 }
 
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
-    
-    SWFriendsController *controller = [SWFriendsController new];
+- (void)fetchFriendsList {
     NSError *error = nil;
-    [controller fetchFriendsListWithCompletionBlock:^(id operation, NSArray *friendsArray, NSError *error) {
-        
-        [self setAllFriendsArray:friendsArray];
-        [self splitToSubarraysFromArray:friendsArray];
-        [self.tableView reloadData];
-        
+    [[SWFriendsController sharedController] fetchFriendsListWithCompletionBlock:^(id operation, NSArray *friendsArray, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error == nil) {
+                [self setAllFriendsArray:friendsArray];
+                [self splitToSubarraysFromArray:friendsArray];
+                [self.tableView reloadData];
+            } else {
+                SWNoInternetViewController *noInternetViewController = [SWNoInternetViewController new];
+                [self presentViewController:noInternetViewController animated:YES completion:nil];
+            }
+        });
     } error:&error];
+}
+
+- (void)presentNoAccessViewController {
+    SWInfoViewController *noAccessViewController = [SWInfoViewController new];
+    [self presentViewController:noAccessViewController animated:YES completion:nil];
 }
 
 #pragma mark - List dividers and getters/setters
