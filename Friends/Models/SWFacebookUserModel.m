@@ -19,6 +19,7 @@ static NSString *const kFacebookAPIPictureUrl = @"last_name";
 @property (nonatomic, strong, readwrite) NSString *lastName;
 @property (nonatomic, strong, readwrite) NSURL *pictureUrl;
 @property (nonatomic, getter = isDisplayFormatFirstNameFirst) BOOL displayFormatFirstNameFirst;
+@property (nonatomic, getter = isSortFormatFirstName) BOOL sortFormatIsFirstName;
 @property (nonatomic) float systemFontSize;
 
 @end
@@ -33,6 +34,7 @@ static NSString *const kFacebookAPIPictureUrl = @"last_name";
         
         ABAddressBookCreateWithOptions(NULL, NULL);
         [self setDisplayFormatFirstNameFirst:ABPersonGetCompositeNameFormatForRecord(NULL) == kABPersonCompositeNameFormatFirstNameFirst];
+        [self setSortFormatIsFirstName:ABPersonGetSortOrdering() == kABPersonSortByFirstName];
         
         if ([dictionary isKindOfClass:[NSDictionary class]]) {
             if ([dictionary objectForKey:kFacebookAPIFirstName]) {
@@ -59,10 +61,20 @@ static NSString *const kFacebookAPIPictureUrl = @"last_name";
     
     if ([self isDisplayFormatFirstNameFirst]) {
         attributedName = [NSString stringWithFormat:@"%@ %@", self.firstName, self.lastName];
-        range = NSMakeRange([self.firstName length],[attributedName length]-[self.firstName length]);
+    
+        if ([self isSortFormatFirstName]) {
+            range = NSMakeRange(0,[self.firstName length]);
+        } else {
+            range = NSMakeRange([self.firstName length],[attributedName length]-[self.firstName length]);
+        }
     } else {
         attributedName = [NSString stringWithFormat:@"%@ %@", self.lastName, self.firstName];
-        range = NSMakeRange(0,[self.lastName length]);
+        
+        if ([self isSortFormatFirstName]) {
+            range = NSMakeRange([self.lastName length],[attributedName length]-[self.lastName length]);
+        } else {
+            range = NSMakeRange(0,[self.lastName length]);
+        }
     }
     
     UIFont *boldFont = [UIFont boldSystemFontOfSize:[self systemFontSize]];
