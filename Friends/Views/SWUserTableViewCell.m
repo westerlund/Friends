@@ -9,6 +9,7 @@
 #import "SWUserTableViewCell.h"
 #import "SWFacebookUserModel.h"
 #import <AFNetworking/UIImageView+AFNetworking.h>
+#import "RBBSpringAnimation.h"
 
 @interface SWUserTableViewCell ()
 
@@ -47,6 +48,9 @@
 - (void)setUser:(SWFacebookUserModel *)user {
     _user = user;
     [self.textLabel setAttributedText:[user name]];
+    
+    // Very often rasterizationScale is reset to 1, I don't know why.
+    [self.profilePictureImageView.layer setRasterizationScale:2.0f];
 
     __weak SWUserTableViewCell *weakSelf = self;
     [self.profilePictureImageView setImageWithURLRequest:[NSURLRequest requestWithURL:[user pictureUrl]]
@@ -57,13 +61,30 @@
                                        [strongSelf.profilePictureImageView setImage:image];
                                        
                                        if ([response statusCode] != 0) { // Image wasn't cached
-                                           [strongSelf.profilePictureImageView setAlpha:0];
-                                           [strongSelf.borderLayer setOpacity:0];
-                                           [UIView animateWithDuration:0.3 animations:^{
-                                               [strongSelf.profilePictureImageView setAlpha:1];
-                                           }];
+                                           
+                                           // Scale in with a spring animation
+                                           RBBSpringAnimation *springAnimation = [RBBSpringAnimation animationWithKeyPath:@"transform"];
+                                           [springAnimation setFromValue:[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.4f, 0.4f, 1.0f)]];
+                                           [springAnimation setToValue:[NSValue valueWithCATransform3D:CATransform3DMakeScale(1.0f, 1.0f, 1.0f)]];
+                                           [springAnimation setDamping:30];
+                                           [springAnimation setStiffness:1000];
+                                           [springAnimation setDuration:0.4];
+                                           [strongSelf.profilePictureImageView.layer addAnimation:springAnimation forKey:@"jfls"];
+                                           
+                                           // Also apply a fade in
+                                           CABasicAnimation *fadeAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+                                           [fadeAnimation setFromValue:@0];
+                                           [fadeAnimation setToValue:@1];
+                                           [strongSelf.profilePictureImageView.layer addAnimation:fadeAnimation forKey:@"fadeInAnimation"];
                                        }
                                    } failure:nil]; // ignore error
+}
+
+- (void)prepareForReuse {
+    [super prepareForReuse];
+    [self.profilePictureImageView.layer removeAllAnimations];
+    [self.profilePictureImageView.layer setTransform:CATransform3DMakeScale(1, 1, 1)];
+    [self.profilePictureImageView setImage:nil];
 }
 
 - (void)layoutSubviews {
