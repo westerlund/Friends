@@ -66,6 +66,14 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    
+    [[SWFriendsController sharedController] checkAccessToFacebook:^(BOOL accessGranted, NSError *error) {
+        if (accessGranted) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kSWFriendsAccessToFacebookGranted object:nil];
+        } else {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kSWFriendsAccessToFacebookDenied object:nil];
+        }
+    }];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
