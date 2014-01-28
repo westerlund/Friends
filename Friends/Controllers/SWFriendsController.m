@@ -22,10 +22,18 @@
 
 @implementation SWFriendsController
 
++ (instancetype)sharedController {
+    static SWFriendsController *sharedController = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedController = [SWFriendsController new];
+    });
+    return sharedController;
+}
+
 - (id)init {
     self = [super init];
     if (self) {
-        
         // Setup store and type
         [self setAccountStore:[ACAccountStore new]];
         [self setAccountType:[self.accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierFacebook]];
@@ -46,8 +54,6 @@
         return;
     }
     
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-    
     if ([self accountCredential] == nil) {
         NSError *error = nil;
         
@@ -55,30 +61,35 @@
         [self requestCredentialsWithCompletionBlock:^(ACAccountCredential *crendentials, NSError *error) {
             
             if (error) {
-                NSLog(@"%@", error);
+                block(nil, nil, error);
             } else {
                 __strong SWFriendsController *strongSelf = weakSelf;
                 [strongSelf setAccountCredential:crendentials];
                 
-                [self fetchListWithCompletionBlock:^(id operation,NSArray *array) {
+                [self fetchListWithCompletionBlock:^(id operation,NSArray *array, NSError *error) {
                     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
-                    block(operation, array, nil);
+                    if (error) {
+                        block(nil, nil, error);
+                    } else {
+                        block(operation, array, nil);
+                    }
                 }];
             }
             
         } error:&error];
-        
-        if (error) {
-            NSLog(@"%@", error);
-        }
     } else {
-        [self fetchListWithCompletionBlock:^(id operation,NSArray *array) {
-            block(operation, array, nil);
+        [self fetchListWithCompletionBlock:^(id operation,NSArray *array, NSError *error) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+            if (error) {
+                block(nil, nil, error);
+            } else {
+                block(operation, array, nil);
+            }
         }];
     }
 }
 
-- (void)fetchListWithCompletionBlock:(void (^)(id operation, NSArray *array))block {
+- (void)fetchListWithCompletionBlock:(void (^)(id operation, NSArray *array, NSError *error))block {
     
     // Create request to /me
     SLRequest *request = [SLRequest requestForServiceType:SLServiceTypeFacebook
@@ -86,30 +97,40 @@
                                                       URL:[NSURL URLWithString:@"https://graph.facebook.com/me/friends"]
                                                parameters:@{@"access_token":[self.accountCredential oauthToken],
                                                             @"fields":@"picture.type(normal),last_name,first_name"}];
+    
     [request performRequestWithHandler:^(NSData *responseData, NSHTTPURLResponse *urlResponse, NSError *error) {
         
-        NSError *jsonError = nil;
-        NSDictionary *friendsList = [NSJSONSerialization JSONObjectWithData:responseData
-                                                                    options:0
-                                                                      error:&jsonError];
-        
-        NSMutableArray *list = [NSMutableArray new];
-        
-        [[friendsList objectForKey:@"data"] enumerateObjectsUsingBlock:^(NSDictionary *dictionary, NSUInteger idx, BOOL *stop) {
+        if (error == nil) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
             
-            NSError *modelError = nil;
-            SWFacebookUserModel *model = [[SWFacebookUserModel alloc] initWithDictionary:dictionary error:&modelError];
+            NSError *jsonError = nil;
+            NSDictionary *friendsList = [NSJSONSerialization JSONObjectWithData:responseData
+                                                                        options:0
+                                                                          error:&jsonError];
             
-            [list addObject:model];
-        }];
-        
-        NSSortDescriptor *sortDescriptor;
-        sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"firstName"
-                                                     ascending:YES];
-
-        dispatch_async(dispatch_get_main_queue(), ^{
-            block(nil, [list sortedArrayUsingDescriptors:@[sortDescriptor]]);
-        });
+            NSMutableArray *list = [NSMutableArray new];
+            
+            [[friendsList objectForKey:@"data"] enumerateObjectsUsingBlock:^(NSDictionary *dictionary, NSUInteger idx, BOOL *stop) {
+                
+                NSError *modelError = nil;
+                SWFacebookUserModel *model = [[SWFacebookUserModel alloc] initWithDictionary:dictionary error:&modelError];
+                
+                [list addObject:model];
+            }];
+            
+            NSSortDescriptor *sortDescriptor;
+            sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"firstName"
+                                                         ascending:YES];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                block(nil, [list sortedArrayUsingDescriptors:@[sortDescriptor]], nil);
+            });
+            
+        } else {
+            
+            block(nil, nil, error);
+            
+        }
         
     }];
     
@@ -138,6 +159,14 @@
     [self.accountStore requestAccessToAccountsWithType:[self accountType]
                                                options:[self accountAccessOptions]
                                             completion:^(BOOL granted, NSError *error) {
+                                                
+                                                if (!granted && error) {
+                                                    NSLog(@"oopps, we are probably stuck in a loop");
+                                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                                        block(nil, error);
+                                                    });
+
+                                                }
                                                 
                                                 if (error) {
                                                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -176,6 +205,13 @@
                                                     
                                                 }
                                             }];
+}
+
+- (void)checkAccessToFacebook:(void (^)(BOOL accessGranted, NSError *error))block {
+    NSError *error = nil;
+    [self requestCredentialsWithCompletionBlock:^(ACAccountCredential *crendentials, NSError *error) {
+        block(error == nil, error);
+    } error:&error];
 }
 
 @end

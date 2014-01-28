@@ -10,6 +10,8 @@
 
 @interface SWFriendsController : NSObject
 
++ (instancetype)sharedController;
+- (void)checkAccessToFacebook:(void (^)(BOOL accessGranted, NSError *error))block;
 - (void)fetchFriendsListWithCompletionBlock:(void (^)(id operation, NSArray *friendsArray, NSError *error))block error:(NSError **)error;
 
 @end
