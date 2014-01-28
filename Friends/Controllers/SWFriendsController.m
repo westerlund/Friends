@@ -117,9 +117,14 @@
                 
                 [list addObject:model];
             }];
-            
-            NSSortDescriptor *sortDescriptor;
-            sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"firstName"
+
+            NSString *sortBy = nil;
+            if ([SWFacebookUserModel sortFormatIsFirstName]) {
+                sortBy = @"firstName";
+            } else {
+                sortBy = @"lastName";
+            }
+            NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:sortBy
                                                          ascending:YES];
             
             dispatch_async(dispatch_get_main_queue(), ^{
