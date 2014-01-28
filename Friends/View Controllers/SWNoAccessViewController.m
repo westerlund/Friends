@@ -14,11 +14,11 @@
 
 @implementation SWNoAccessViewController
 
-- (NSString *)infoString {
+- (NSString *)infoTipString {
     return @"Flick the switch in the Facebook\rsection in Settings.";
 }
 
-- (NSString *)infoTipString {
+- (NSString *)infoString {
     return @"This app needs access to Facebook :(";
 }
 
