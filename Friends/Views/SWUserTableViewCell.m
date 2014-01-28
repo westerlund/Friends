@@ -30,11 +30,15 @@
         [self setProfilePictureImageView:[UIImageView new]];
         [self.contentView addSubview:[self profilePictureImageView]];
         
+        CGFloat pictureWidth = 28;
         [self.profilePictureImageView setContentMode:UIViewContentModeScaleAspectFill];
-        [self.profilePictureImageView setFrame:CGRectMake(8, (44-28)/2, 28, 28)];
+        [self.profilePictureImageView setFrame:CGRectMake(8,
+                                                          (CGRectGetHeight([self frame]) - pictureWidth) / 2,
+                                                          pictureWidth,
+                                                          pictureWidth)];
         [self.profilePictureImageView setClipsToBounds:YES];
         [self.profilePictureImageView setBackgroundColor:[UIColor colorWithWhite:0.9 alpha:1]];
-        [self.profilePictureImageView.layer setCornerRadius:CGRectGetHeight([self.profilePictureImageView frame]) / 2];
+        [self.profilePictureImageView.layer setCornerRadius:pictureWidth / 2];
         [self.profilePictureImageView.layer setShouldRasterize:YES];
     }
     return self;
