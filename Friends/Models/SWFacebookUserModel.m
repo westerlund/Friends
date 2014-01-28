@@ -26,6 +26,10 @@ static NSString *const kFacebookAPIPictureUrl = @"last_name";
 
 @implementation SWFacebookUserModel
 
++ (BOOL)sortFormatIsFirstName {
+    return ABPersonGetSortOrdering() == kABPersonSortByFirstName;
+}
+
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary error:(NSError *__autoreleasing *)error {
     self = [super init];
     if (self) {
@@ -34,7 +38,7 @@ static NSString *const kFacebookAPIPictureUrl = @"last_name";
         
         ABAddressBookCreateWithOptions(NULL, NULL);
         [self setDisplayFormatFirstNameFirst:ABPersonGetCompositeNameFormatForRecord(NULL) == kABPersonCompositeNameFormatFirstNameFirst];
-        [self setSortFormatIsFirstName:ABPersonGetSortOrdering() == kABPersonSortByFirstName];
+        [self setSortFormatIsFirstName:[SWFacebookUserModel sortFormatIsFirstName]];
         
         if ([dictionary isKindOfClass:[NSDictionary class]]) {
             if ([dictionary objectForKey:kFacebookAPIFirstName]) {

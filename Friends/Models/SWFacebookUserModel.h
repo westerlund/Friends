@@ -19,4 +19,7 @@
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary error:(NSError **)error;
 - (NSString *)fullName;
 
+/// Return whether sort format is first,last or not
++ (BOOL)sortFormatIsFirstName;
+
 @end
