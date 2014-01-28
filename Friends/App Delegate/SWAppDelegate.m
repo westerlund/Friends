@@ -8,6 +8,8 @@
 
 #import "SWAppDelegate.h"
 #import "SWListFriendsViewController.h"
+#import "SWFriendsController.h"
+#import "SWInfoViewController.h"
 
 @implementation SWAppDelegate
 
@@ -18,7 +20,30 @@
     [self.window setBackgroundColor:[UIColor whiteColor]];
     [self.window setRootViewController:[[UINavigationController alloc] initWithRootViewController:[SWListFriendsViewController new]]];
     [self.window makeKeyAndVisible];
+    
+    [self setupAppearances];
+    
     return YES;
+}
+
+- (void)setupAppearances {
+    UIColor *sligtlyBlueColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.92 alpha:1];
+    
+    // Navigation bar
+    [[UINavigationBar appearance] setBarTintColor:sligtlyBlueColor];
+    
+    // No access view
+    [[UIView appearanceWhenContainedIn:[SWInfoViewController class], nil]
+     setBackgroundColor:sligtlyBlueColor];
+    
+    // Search bar
+    [[UISearchBar appearance] setBarTintColor:[UIColor colorWithWhite:0.8 alpha:1]];
+    
+    // Title label
+    NSDictionary *dictionary = @{NSFontAttributeName: [UIFont boldSystemFontOfSize:18],
+                                 NSForegroundColorAttributeName: [UIColor colorWithWhite:0.3 alpha:1]};
+    
+    [[UINavigationBar appearance] setTitleTextAttributes:dictionary];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
